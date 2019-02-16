@@ -27,7 +27,6 @@ void initGLFW();
 // Callback functions
 void processKeyboardInput();
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-//void key_press_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 
 // Player
@@ -100,6 +99,7 @@ int main () {
 	return 0;
 }
 
+
 // User-defined Functions:
 
 void initGLFW() {
@@ -117,7 +117,6 @@ void initGLFW() {
 		return;
 	}
 	glfwMakeContextCurrent(window);
-	//glfwSetKeyCallback(window, key_press_callback);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // set callback function for changing window size
 }
 
