@@ -139,7 +139,6 @@ private:
 		float radiusSquare = circleRadius * circleRadius;
 
 		if (closestY == currentPlatform.upperSide && glm::abs(distanceX) < (0.5f * circleRadius)) { // circle is above platform
-			//velocityY = glm::min(velocityY, 0.0f);
 
 			if (closestX == currentPlatform.leftSide) { // upper left corner
 				float firstTerm = (playerPosition.x - currentPlatform.leftSide) * (playerPosition.x - currentPlatform.leftSide);
