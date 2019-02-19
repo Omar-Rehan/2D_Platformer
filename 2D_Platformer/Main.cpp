@@ -1,13 +1,15 @@
-#include <iostream>
-#include <GLAD/glad.h>
-#include <GLFW/glfw3.h>
-#include <GLM/glm.hpp>
-#include <GLM/gtc/matrix_transform.hpp>
+#include <string>
+#include <vector>
 
-#include "Shaders.h"
+#include <GLAD/glad.h>
+#include <GLM/glm.hpp>
+#include <GLFW/glfw3.h>
+
+#include "Text.h"
 #include "Player.h"
 #include "Ground.h"
 #include "Platform.h"
+#include "ShaderProgram.h"
 
 // OpenGL context
 GLFWwindow *window;
@@ -20,12 +22,11 @@ float deltaTime = 0.0f;
 unsigned int SCR_WIDTH  = 800;
 unsigned int SCR_HEIGHT = 800;
 
-// Initialization functions
-void initGLAD();
-void initGLFW();
-
-// Callback functions
-void processKeyboardInput();
+// Functions
+void InitGLAD();
+void InitGLFW();
+std::string FormatTime(int timeNow);
+void ProcessKeyboardInput(Player &player);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 
@@ -34,42 +35,43 @@ Player player;
 const float circleRadius = 0.07f;
 const int numOfCircleVertices = 20;
 float circleVertices[(numOfCircleVertices + 1) * 3];
-void calculatePlayerData();
+void CalculatePlayerData();
 
 
 // Ground
-Ground ground;
+unsigned int rectangleIndices[6];
 float groundVertices[4 * 3]; // 4 points, 3 coordinates each
-unsigned int indices[6];
-void calculateGroundData();
-
+void CalculateGroundData();
 
 
 // Platforms
 const int numOfPlatforms = 4;
-Platform platforms[numOfPlatforms];
 float platformsVertices[4 * 3]; // 4 points, 3 coordinates each
 glm::vec3 platformsPositions[numOfPlatforms];
-void calculatePlatformsData();
+void CalculatePlatformsData();
 
 
 
 int main () {
-	initGLFW(); // Create opengl context
+	InitGLFW(); // Create opengl context
 	if (window == NULL) return -1;
 
-	initGLAD(); // Get function pointers from GPU drivers
+	InitGLAD(); // Get function pointers from GPU drivers
 
 	
-	calculatePlayerData();
+	CalculatePlayerData();
 	player.Setup(numOfCircleVertices, circleVertices, "circleShader.vs", "circleShader.fs", circleRadius);
 
-	calculateGroundData();
-	ground.Setup(groundVertices, indices, "groundShader.vs", "groundShader.fs");
+	CalculateGroundData();
+	Ground ground(groundVertices, rectangleIndices, "groundShader.vs", "groundShader.fs");
 
-	calculatePlatformsData();
-	for (int i = 0; i < numOfPlatforms; i++)
-		platforms[i].Setup(platformsVertices, indices, "platformsShader.vs", "platformsShader.fs");
+	CalculatePlatformsData();
+	std::vector<Platform> platforms;
+	for (int i = 0; i < numOfPlatforms; i++) 
+		platforms.push_back(Platform(platformsVertices, rectangleIndices, "platformsShader.vs", "platformsShader.fs"));
+
+
+	Text timerText(0, 36, "fontShader.vs", "fontShader.fs", SCR_WIDTH, SCR_HEIGHT);
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -84,11 +86,13 @@ int main () {
 
 		// Render objects
 		ground.Draw();
+		for (int i = 0; i < numOfPlatforms; i++) platforms[i].Draw(platformsPositions[i]);
 		player.Draw(deltaTime, numOfPlatforms, platforms);
-		for (int i = 0; i < numOfPlatforms; i++) 
-			platforms[i].Draw(platformsPositions[i]);
 
-		processKeyboardInput();
+		int timeNow = (int)round(glfwGetTime());
+		timerText.RenderText(FormatTime(timeNow), 650.0f, 750.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		
+		ProcessKeyboardInput(player);
 		glfwSwapBuffers(window); // swap the two buffers (front & back)
 		glfwPollEvents(); // check for triggered events, update window state, call callback functions
 	}
@@ -102,7 +106,7 @@ int main () {
 
 // User-defined Functions:
 
-void initGLFW() {
+void InitGLFW() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // version
@@ -120,7 +124,7 @@ void initGLFW() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // set callback function for changing window size
 }
 
-void initGLAD() {
+void InitGLAD() {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		std::cout << "Failed to initialize GLAD" << std::endl;
 }
@@ -134,7 +138,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processKeyboardInput() {
+void ProcessKeyboardInput(Player &player) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true); // close window when esc is pressed
 
@@ -147,17 +151,14 @@ void processKeyboardInput() {
 }
 
 
-void calculatePlayerData() {
+void CalculatePlayerData() {
 	float deg = 0.0f;
 
 	// points on circumference
 	for (int idx = 0; idx < 3 * numOfCircleVertices; idx += 3, deg += 360.0f / numOfCircleVertices) {
-		// x coordinate
-		circleVertices[idx + 0] = (circleRadius * (float)std::cos(glm::radians(deg)));
-		// y coordinate
-		circleVertices[idx + 1] = (circleRadius * (float)std::sin(glm::radians(deg)));
-		// z coordinate
-		circleVertices[idx + 2] = 0.0f;
+		circleVertices[idx + 0] = (circleRadius * (float)std::cos(glm::radians(deg))); // x coordinate
+		circleVertices[idx + 1] = (circleRadius * (float)std::sin(glm::radians(deg))); // y coordinate
+		circleVertices[idx + 2] = 0.0f; // z coordinate
 	}
 
 	// center of circle
@@ -167,7 +168,7 @@ void calculatePlayerData() {
 }
 
 
-void calculateGroundData() {
+void CalculateGroundData() {
 	// Position data:
 	// lower left
 	groundVertices[0] = -1.0f;
@@ -187,20 +188,20 @@ void calculateGroundData() {
 	groundVertices[11] =  0.0f;
 
 
-	// EBO data:
+	// Indices data (EBO):
 	// first triangle
-	indices[0] = 0;
-	indices[1] = 1;
-	indices[2] = 3;
+	rectangleIndices[0] = 0;
+	rectangleIndices[1] = 1;
+	rectangleIndices[2] = 3;
 	// second triangle
-	indices[3] = 1;
-	indices[4] = 2;
-	indices[5] = 3;
+	rectangleIndices[3] = 1;
+	rectangleIndices[4] = 2;
+	rectangleIndices[5] = 3;
 }
 
 
 
-void calculatePlatformsData() {
+void CalculatePlatformsData() {
 	// Position data:
 	// first vertex
 	platformsVertices[0] = -0.25f;
@@ -227,3 +228,45 @@ void calculatePlatformsData() {
 	platformsPositions[3] = glm::vec3(0.0f, 0.45f, 0.0f);
 }
 
+/*
+unsigned int CreateTexture(const char *imagePath) {
+	// Create a texture
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	//shaderProgram.setIntUniform("ourTexture1", 0);
+
+	// Texture filtering: 
+	// when coordinates don't correspond to a center of a texel
+	// how is the output color calculated?
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load image & generate texture
+	int width, height, numOfColorChannels;
+	unsigned char *data = stbi_load(imagePath, &width, &height, &numOfColorChannels, 0);
+
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		std::cout << "Failed to generate texture" << std::endl;
+	}
+
+	stbi_image_free(data);
+	return textureID;
+}
+*/
+
+
+std::string FormatTime(int seconds) {
+	int hours = seconds / 3600; seconds %= 3600;
+	int minutes = seconds / 60; seconds %= 60;
+
+	std::string time;
+	time += (hours < 10 ? "0" : "") + std::to_string(hours) + ":";
+	time += (minutes < 10 ? "0" : "") + std::to_string(minutes) + ":";
+	time += (seconds < 10 ? "0" : "") + std::to_string(seconds);
+	return time;
+}
