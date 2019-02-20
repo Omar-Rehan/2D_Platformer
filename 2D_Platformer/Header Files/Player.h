@@ -13,7 +13,7 @@ public:
 	void Setup(int vertices, float positionAttribute[], const char* vrtxShaderPath, const char* frgmtShaderPath, float radius);
 	void Draw(float deltaTime, int numOfPlatforms, std::vector<Platform> &platforms);
 	void Move(Player_Movement key, float deltaTime);
-	void GetCrazy();
+	void GetHyper();
 	void BeNormal();
 	void DeleteVAO();
 

@@ -83,7 +83,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\2D_Platformer\Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\2D_Platformer\2D_Platformer\header files;E:\2D_Platformer\Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -131,20 +131,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="Ground.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Platform.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="ShaderProgram.cpp" />
-    <ClCompile Include="Text.cpp" />
+    <ClCompile Include="source files\glad.c" />
+    <ClCompile Include="source files\Ground.cpp" />
+    <ClCompile Include="source files\Main.cpp" />
+    <ClCompile Include="source files\Platform.cpp" />
+    <ClCompile Include="source files\Player.cpp" />
+    <ClCompile Include="source files\ShaderProgram.cpp" />
+    <ClCompile Include="source files\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ground.h" />
-    <ClInclude Include="Platform.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="ShaderProgram.h" />
-    <ClInclude Include="Text.h" />
+    <ClInclude Include="header files\Ground.h" />
+    <ClInclude Include="header files\Platform.h" />
+    <ClInclude Include="header files\Player.h" />
+    <ClInclude Include="header files\ShaderProgram.h" />
+    <ClInclude Include="header files\Text.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

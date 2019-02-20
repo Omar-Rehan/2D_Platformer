@@ -57,7 +57,7 @@ void Player::Draw(float deltaTime, int numOfPlatforms, std::vector<Platform>& pl
 		shaderProgram.setBoolUniform("hyper", false);
 	}
 
-	// prevent hyper mode until cooldown
+	// prevent entering hyper mode until cooldown
 	if (tired) {
 		timer += deltaTime;
 		if (timer > cooldownTime) tired = false, timer = 0.0f;
@@ -74,11 +74,13 @@ void Player::Draw(float deltaTime, int numOfPlatforms, std::vector<Platform>& pl
 
 	// Draw player
 	glDrawArrays(GL_TRIANGLE_FAN, 0, numOfVertices);
+
 	
 	// Calculate new "velocityY" value
 	if (onGround)                              velocityY = 0.0f;
 	else if (playerPosition.y == highestPoint) velocityY = glm::min(0.0f, velocityY - gravity * deltaTime);
 	else                                       velocityY -= gravity * deltaTime;
+
 
 	shaderProgram.deactivate();
 	glBindVertexArray(0);
@@ -93,7 +95,7 @@ void Player::Move(Player_Movement key, float deltaTime) {
 }
 
 
-void Player::GetCrazy() {if (!tired) speedup = 0.5f;}
+void Player::GetHyper() {if (!tired) speedup = 0.5f;}
 void Player::BeNormal() {speedup = 0.0f; timer = 0.0f;}
 
 

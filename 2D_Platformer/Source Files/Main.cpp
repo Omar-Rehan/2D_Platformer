@@ -59,18 +59,18 @@ int main () {
 
 	
 	CalculatePlayerData();
-	player.Setup(numOfCircleVertices, circleVertices, "circleShader.vs", "circleShader.fs", circleRadius);
+	player.Setup(numOfCircleVertices, circleVertices, "Shaders/circleShader.vs", "Shaders/circleShader.fs", circleRadius);
 
 	CalculateGroundData();
-	Ground ground(groundVertices, rectangleIndices, "groundShader.vs", "groundShader.fs");
+	Ground ground(groundVertices, rectangleIndices, "Shaders/groundShader.vs", "Shaders/groundShader.fs");
 
 	CalculatePlatformsData();
 	std::vector<Platform> platforms;
 	for (int i = 0; i < numOfPlatforms; i++) 
-		platforms.push_back(Platform(platformsVertices, rectangleIndices, "platformsShader.vs", "platformsShader.fs"));
+		platforms.push_back(Platform(platformsVertices, rectangleIndices, "Shaders/platformsShader.vs", "Shaders/platformsShader.fs"));
 
 
-	Text timerText(0, 36, "fontShader.vs", "fontShader.fs", SCR_WIDTH, SCR_HEIGHT);
+	Text timerText(0, 36, "Shaders/fontShader.vs", "Shaders/fontShader.fs", SCR_WIDTH, SCR_HEIGHT);
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -140,8 +140,8 @@ void ProcessKeyboardInput(Player &player) {
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // move left
 		player.Move(LEFT, deltaTime);
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) player.GetCrazy();
-	else player.BeNormal();
+
+	glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? player.GetHyper() : player.BeNormal();
 }
 
 
