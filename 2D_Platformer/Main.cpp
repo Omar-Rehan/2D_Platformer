@@ -19,15 +19,14 @@ float lastFrame = 0.0f;
 float deltaTime = 0.0f;
 
 // Settings
-unsigned int SCR_WIDTH  = 800;
-unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH  = 700;
+unsigned int SCR_HEIGHT = 700;
 
 // Functions
 void InitGLAD();
 void InitGLFW();
 std::string FormatTime(int timeNow);
 void ProcessKeyboardInput(Player &player);
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 
 // Player
@@ -90,7 +89,7 @@ int main () {
 		player.Draw(deltaTime, numOfPlatforms, platforms);
 
 		int timeNow = (int)round(glfwGetTime());
-		timerText.RenderText(FormatTime(timeNow), 650.0f, 750.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		timerText.RenderText(FormatTime(timeNow), 550.0f, 650.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		
 		ProcessKeyboardInput(player);
 		glfwSwapBuffers(window); // swap the two buffers (front & back)
@@ -112,8 +111,10 @@ void InitGLFW() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // version
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // mode
 
+	// Disable changing window size
+	glfwWindowHint(GLFW_RESIZABLE, false);
 	// Create a window using GLFW
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2D Platformer", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -121,21 +122,11 @@ void InitGLFW() {
 		return;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // set callback function for changing window size
 }
 
 void InitGLAD() {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		std::cout << "Failed to initialize GLAD" << std::endl;
-}
-
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	SCR_WIDTH = width;
-	SCR_HEIGHT = height;
-	glViewport(0, 0, width, height);
 }
 
 void ProcessKeyboardInput(Player &player) {
@@ -148,6 +139,9 @@ void ProcessKeyboardInput(Player &player) {
 		player.Move(RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) // move left
 		player.Move(LEFT, deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) player.GetCrazy();
+	else player.BeNormal();
 }
 
 
@@ -222,42 +216,11 @@ void CalculatePlatformsData() {
 
 
 	// translation vectors
-	platformsPositions[0] = glm::vec3(0.7f, -0.5f, 0.0f);
-	platformsPositions[1] = glm::vec3(0.0f, -0.2f, 0.0f);
-	platformsPositions[2] = glm::vec3(-0.7f, 0.1f, 0.0f);
+	platformsPositions[0] = glm::vec3(0.75f, -0.5f, 0.0f);
+	platformsPositions[1] = glm::vec3(0.0f, -0.25f, 0.0f);
+	platformsPositions[2] = glm::vec3(-0.75f, 0.175f, 0.0f);
 	platformsPositions[3] = glm::vec3(0.0f, 0.45f, 0.0f);
 }
-
-/*
-unsigned int CreateTexture(const char *imagePath) {
-	// Create a texture
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	//shaderProgram.setIntUniform("ourTexture1", 0);
-
-	// Texture filtering: 
-	// when coordinates don't correspond to a center of a texel
-	// how is the output color calculated?
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load image & generate texture
-	int width, height, numOfColorChannels;
-	unsigned char *data = stbi_load(imagePath, &width, &height, &numOfColorChannels, 0);
-
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	} else {
-		std::cout << "Failed to generate texture" << std::endl;
-	}
-
-	stbi_image_free(data);
-	return textureID;
-}
-*/
 
 
 std::string FormatTime(int seconds) {

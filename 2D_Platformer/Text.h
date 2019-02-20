@@ -11,7 +11,7 @@
 #include "ShaderProgram.h"
 
 struct Character {
-	GLuint     TextureID;  // ID handle of the glyph texture
+	GLuint     textureId;  // ID handle of the glyph texture
 	glm::ivec2 Size;       // Size of glyph
 	glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
 	GLuint     Advance;    // Offset to advance to next glyph
@@ -30,6 +30,9 @@ private:
 	// Members
 	unsigned int vaoId, vboId;
 	ShaderProgram shaderProgramId;
-	std::map<GLchar, Character> Characters;
+	std::map<GLchar, Character> CharactersMap;
 
+	// Functions
+	void AddToMap(FT_Face face, GLuint textureId, char c);
+	void GenerateCharTexture(FT_Face face, GLuint &textureId);
 };

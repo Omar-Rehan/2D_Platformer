@@ -48,6 +48,20 @@ void Player::Draw(float deltaTime, int numOfPlatforms, std::vector<Platform>& pl
 	onGround = false;
 	if (playerPosition.y == lowestPoint) onGround = true;
 
+	// limit hyper mode time
+	if (speedup > 0.1f) {
+		timer += deltaTime;
+		shaderProgram.setBoolUniform("hyper", true);
+		if (timer > hyperTime) tired = true, speedup = 0.0f, timer = 0.0f;
+	} else {
+		shaderProgram.setBoolUniform("hyper", false);
+	}
+
+	// prevent hyper mode until cooldown
+	if (tired) {
+		timer += deltaTime;
+		if (timer > cooldownTime) tired = false, timer = 0.0f;
+	}
 
 	// Create model matrix (local space -> world space)
 	glm::mat4 modelMat = glm::mat4(1.0f);
@@ -72,11 +86,15 @@ void Player::Draw(float deltaTime, int numOfPlatforms, std::vector<Platform>& pl
 
 
 void Player::Move(Player_Movement key, float deltaTime) {
-	if (key == UP && onGround) velocityY = kickoff; // jump
+	if (key == UP && onGround) velocityY = kickoff + (speedup / 2000); // jump
 
-	if (key == RIGHT) playerPosition.x += velocityX * deltaTime; // move right
-	if (key == LEFT) playerPosition.x -= velocityX * deltaTime; // move left
+	if (key == RIGHT) playerPosition.x += (velocityX + speedup) * deltaTime; // move right
+	if (key == LEFT)  playerPosition.x -= (velocityX + speedup) * deltaTime; // move left
 }
+
+
+void Player::GetCrazy() {if (!tired) speedup = 0.5f;}
+void Player::BeNormal() {speedup = 0.0f; timer = 0.0f;}
 
 
 void Player::DeleteVAO() {
